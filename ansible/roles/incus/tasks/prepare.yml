@@ -1,0 +1,58 @@
+- name: Update and upgrade apt packages
+  ansible.builtin.apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: Install necessary packages
+  ansible.builtin.apt:
+    name:
+    - gnupg
+    - lvm2
+    state: present
+
+- name: Check Incus public key exists
+  ansible.builtin.stat: 
+    path: "{{ incus.apt_repository.public_key.path }}"
+  register: incus_public_key
+
+- name: Copy Incus public key
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/public_key.asc"
+    dest: "{{ incus.apt_repository.public_key.path }}"
+  when: not incus_public_key.stat.exists
+
+- name: Register Incus public key fingerprint 
+  ansible.builtin.shell:
+    cmd: gpg --show-keys --fingerprint {{ incus.apt_repository.public_key.path }}
+  register: incus_public_key_fingerprint
+
+- name: Verify Incus public key fingerprint
+  ansible.builtin.assert:
+    that:
+    - "incus.apt_repository.public_key.fingerprint in incus_public_key_fingerprint.stdout"
+
+- name: Check Incus apt repository exists
+  ansible.builtin.stat: 
+    path: "{{ incus.apt_repository.path }}"
+  register: incus_repository
+
+- name: Add Incus apt repository
+  ansible.builtin.template:
+    src: incus_apt_repository.j2
+    dest: "{{ incus.apt_repository.path }}"
+  when: not incus_repository.stat.exists
+
+- name: Update apt packages (with Incus repository)
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install Incus
+  ansible.builtin.apt:
+    name:
+    - incus
+    state: present
+
+- name: Create directory for Incus config
+  ansible.builtin.file:
+    path: "{{ incus.dir }}"
+    state: directory

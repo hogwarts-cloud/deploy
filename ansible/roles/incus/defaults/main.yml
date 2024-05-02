@@ -1,0 +1,14 @@
+incus:
+  dir: /etc/incus
+  apt_repository:
+    path: /etc/apt/sources.list.d/zabbly-incus-lts-6.0.sources
+    public_key:
+      path: /etc/apt/keyrings/zabbly.asc
+      fingerprint: "4EFC 5906 96CB 15B8 7C73  A3AD 82CC 8797 C838 DCFD"
+  bridge:
+    cidr: 10.10.10.1/24
+    external_interface:
+      name: eth0
+      vlan: 11
+  lvm:
+    partition: /dev/vdb

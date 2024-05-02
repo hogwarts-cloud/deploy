@@ -1,0 +1,15 @@
+- name: Check client certificate exists
+  stat: 
+    path: "{{ incus.dir }}/client.crt"
+  register: client_certificate
+
+- name: Copy client certificate
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/client.crt"
+    dest: "{{ incus.dir }}/client.crt"
+  when: inventory_hostname in groups["bootstrap"] and not client_certificate.stat.exists
+
+- name: Trust client
+  ansible.builtin.shell:
+    cmd: incus config trust add-certificate {{ incus.dir }}/client.crt
+  when: inventory_hostname in groups["bootstrap"] and not client_certificate.stat.exists
