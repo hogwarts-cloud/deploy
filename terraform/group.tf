@@ -25,7 +25,7 @@ resource "yandex_compute_instance_group" "group" {
     secondary_disk {
       mode = "READ_WRITE"
       initialize_params {
-        size = 30
+        size = 100
       }
     }
     
