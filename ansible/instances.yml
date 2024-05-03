@@ -1,0 +1,28 @@
+- hosts: "{{ groups['all'] | random }}" 
+  tasks:
+  - name: Get hogctl latest release
+    ansible.builtin.uri:
+      url: https://api.github.com/repos/hogwarts-cloud/hogctl/releases/latest
+      return_content: true
+    register: hogctl_latest_release
+  
+  - name: Download hogctl binary
+    ansible.builtin.get_url:
+      url: "{{ hogctl_latest_release.json.assets[0].browser_download_url }}"
+      dest: /usr/local/bin/hogctl
+      mode: '0777'
+
+  - name: Delete instances directory
+    ansible.builtin.file:
+      state: absent
+      path: /tmp/instances
+
+  - name: Get instances list
+    ansible.builtin.git:
+      repo: https://github.com/hogwarts-cloud/instances
+      dest: /tmp/instances
+      version: instances
+        
+  - name: Deploy instances
+    ansible.builtin.shell:
+      cmd: hogctl deploy --path=/tmp/instances/instances/
