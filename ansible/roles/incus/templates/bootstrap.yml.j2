@@ -14,17 +14,6 @@ storage_pools:
   driver: lvm
   config:
     source: {{ incus.lvm.partition }}
-profiles:
-- devices:
-    eth0:
-      name: eth0
-      network: incusbr0
-      type: nic
-    root:
-      path: /
-      pool: incuslvm
-      type: disk
-  name: default
 cluster:
   enabled: true
   server_name: {{ inventory_hostname }}
