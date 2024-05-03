@@ -3,6 +3,3 @@
 
 - name: Init Incus cluster
   ansible.builtin.include_tasks: init_cluster.yml
-
-- name: Trust client # only for development
-  ansible.builtin.include_tasks: trust_client.yml
