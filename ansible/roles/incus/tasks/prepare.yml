@@ -1,7 +1,7 @@
 - name: Update and upgrade apt packages
   ansible.builtin.apt:
-    update_cache: yes
-    upgrade: yes
+    update_cache: true
+    upgrade: true
 
 - name: Install necessary packages
   ansible.builtin.apt:
@@ -44,7 +44,7 @@
 
 - name: Update apt packages (with Incus repository)
   ansible.builtin.apt:
-    update_cache: yes
+    update_cache: true
 
 - name: Install Incus
   ansible.builtin.apt:

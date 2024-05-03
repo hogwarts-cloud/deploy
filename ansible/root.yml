@@ -13,7 +13,7 @@
     ansible.builtin.copy:
       src: /home/debian/.ssh/authorized_keys
       dest: /root/.ssh/authorized_keys
-      remote_src: yes
+      remote_src: true
 
   - name: Restart sshd
     ansible.builtin.service:
