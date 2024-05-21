@@ -2,4 +2,3 @@
 terraform.tfstate*
 incus.tar.xz
 rootfs.squashfs
-hosts.ini

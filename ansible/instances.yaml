@@ -17,12 +17,12 @@
       state: absent
       path: /tmp/instances
 
-  - name: Get instances list
-    ansible.builtin.git:
-      repo: https://github.com/hogwarts-cloud/instances
-      dest: /tmp/instances
-      version: instances
+  # - name: Get instances list
+  #   ansible.builtin.git:
+  #     repo: https://github.com/hogwarts-cloud/config
+  #     dest: /tmp/instances
+  #     version: instances
         
-  - name: Deploy instances
-    ansible.builtin.shell:
-      cmd: hogctl deploy --path=/tmp/instances/instances/
+  # - name: Deploy instances
+  #   ansible.builtin.shell:
+  #     cmd: hogctl deploy --path=/tmp/instances/instances/

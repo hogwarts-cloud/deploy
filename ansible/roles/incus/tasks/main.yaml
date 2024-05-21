@@ -1,0 +1,5 @@
+- name: Prepare environment to init Incus cluster
+  ansible.builtin.include_tasks: prepare.yaml
+
+- name: Init Incus cluster
+  ansible.builtin.include_tasks: init_cluster.yaml

@@ -1,20 +1,20 @@
-- name: Check member node already configured
+- name: Check that member node already configured
   ansible.builtin.shell:
-    cmd: incus admin cluster list-database
+    cmd: incus cluster list
   register: incus_cluster_list_database
 
-- name: Configure member node
-  when: hostvars[member.name].internal_host not in incus_cluster_list_database.stdout
+- name: Configure member nde
+  when: hostvars[member.name].cluster_host not in incus_cluster_list_database.stdout
   block:
   - name: Generate member connection key
     ansible.builtin.shell:
       cmd: incus cluster add {{ member.name }}
     register: member_connection_key
 
-  - name: Check member node config exists
+  - name: Check that member node config exists
     delegate_to: "{{ member.name }}"
     ansible.builtin.stat: 
-      path: "{{ incus.dir }}/member.yml"
+      path: "{{ incus.dir }}/member.yaml"
     register: member_node_config
 
   - name: Copy member node config
@@ -22,11 +22,11 @@
     vars:
       cluster_token: "{{ member_connection_key.stdout_lines[1] }}"
     ansible.builtin.template:
-      src: member.yml.j2
-      dest: "{{ incus.dir }}/member.yml"
+      src: member.yaml.j2
+      dest: "{{ incus.dir }}/member.yaml"
     when: not member_node_config.stat.exists
 
   - name: Init member node
     delegate_to: "{{ member.name }}"
     ansible.builtin.shell:
-      cmd: incus admin init --preseed < {{ incus.dir }}/member.yml
+      cmd: incus admin init --preseed < {{ incus.dir }}/member.yaml

@@ -1,0 +1,12 @@
+config:
+  core.https_address: {{ hostvars[inventory_hostname].cluster_host }}:8443
+storage_pools:
+- name: incuslvm
+  driver: lvm
+  config:
+    source: {{ incus.cluster.vg_name }}
+    lvm.vg.force_reuse: true
+cluster:
+  enabled: true
+  server_name: {{ inventory_hostname }}
+  server_address: {{ hostvars[inventory_hostname].cluster_host }}:8443

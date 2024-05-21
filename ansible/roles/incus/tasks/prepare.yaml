@@ -9,16 +9,18 @@
     - git
     - gnupg
     - lvm2
+    - nftables
+    - nginx
     state: present
 
-- name: Check Incus public key exists
+- name: Check that Incus public key exists
   ansible.builtin.stat: 
     path: "{{ incus.apt_repository.public_key.path }}"
   register: incus_public_key
 
 - name: Copy Incus public key
   ansible.builtin.copy:
-    src: "{{ role_path }}/files/public_key.asc"
+    src: "{{ role_path }}/files/zabbly.asc"
     dest: "{{ incus.apt_repository.public_key.path }}"
   when: not incus_public_key.stat.exists
 
@@ -32,7 +34,7 @@
     that:
     - "incus.apt_repository.public_key.fingerprint in incus_public_key_fingerprint.stdout"
 
-- name: Check Incus apt repository exists
+- name: Check that Incus apt repository exists
   ansible.builtin.stat: 
     path: "{{ incus.apt_repository.path }}"
   register: incus_repository
