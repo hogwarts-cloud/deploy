@@ -1,0 +1,14 @@
+- name: Check that NGINX config exists
+  ansible.builtin.stat: 
+    path: "{{ instances.nginx.dir }}/{{ instance.name }}.conf"
+  register: nginx_config
+
+- name: Generate NGINX config
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ instances.nginx.dir }}/{{ instance.name }}.conf"
+  when: not nginx_config.stat.exists
+    
+- name: Add nftables rule
+  ansible.builtin.shell:
+    cmd: nft 'add rule {{ instances.nftables.table }} prerouting tcp dport { {{ instance.network.port }} } dnat {{ instance.network.ip }}:22'

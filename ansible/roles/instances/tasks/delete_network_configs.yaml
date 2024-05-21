@@ -1,0 +1,13 @@
+- name: Delete NGINX config
+  ansible.builtin.file:
+    path: "{{ instances.nginx.dir }}/{{ instance.name }}.conf"
+    state: absent
+
+- name: Find nftables rule handle
+  ansible.builtin.shell:
+    cmd: nft -a list table {{ instances.nftables.table }} | grep '{{ instance.network.ip }}' | awk '{print $NF}'
+  register: rule_handle
+
+- name: Delete nftables rule
+  ansible.builtin.shell:
+    cmd: nft delete rule {{ instances.nftables.table }} prerouting handle {{ rule_handle }}

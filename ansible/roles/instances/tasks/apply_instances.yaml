@@ -1,0 +1,27 @@
+# - name: Get hogctl release
+#   ansible.builtin.uri:
+#     url: "{{ instances.hogctl.release }}"
+#     return_content: true
+#   register: hogctl_release
+
+# - name: Download hogctl binary
+#   ansible.builtin.get_url:
+#     url: "{{ hogctl_release.json.assets[0].browser_download_url }}"
+#     dest: /usr/local/bin/hogctl
+#     mode: '0777'
+
+# - name: Delete config directory
+#   ansible.builtin.file:
+#     state: absent
+#     path: "{{ instances.dir }}"
+
+# - name: Download config
+#   ansible.builtin.git:
+#     repo: "{{ instances.hogctl.config }}"
+#     dest: "{{ instances.dir }}"
+#     version: config # todo change to master after pull request merging
+      
+- name: Apply instances
+  ansible.builtin.shell:
+    cmd: hogctl apply --config={{ instances.dir }}
+  register: apply_result

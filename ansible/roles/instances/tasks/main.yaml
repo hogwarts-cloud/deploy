@@ -1,0 +1,6 @@
+- name: Apply instances
+  when: inventory_hostname == apply_host
+  ansible.builtin.include_tasks: apply_instances.yaml
+
+- name: Configure network
+  ansible.builtin.include_tasks: configure_network.yaml
