@@ -1,0 +1,21 @@
+- name: Check that NGINX config exists
+  ansible.builtin.stat: 
+    path: "{{ nginx.dir }}/{{ instance.name }}.conf"
+  register: nginx_config
+
+- name: Generate NGINX config
+  ansible.builtin.template:
+    src: nginx.j2
+    dest: "{{ nginx.dir }}/{{ instance.name }}.conf"
+  when: not nginx_config.stat.exists
+
+- name: Check that nftables rules exists
+  ansible.builtin.stat: 
+    path: "{{ nftables.instances_dir }}/{{ instance.name }}.nft"
+  register: nftables_rules
+
+- name: Generate nftables rules
+  ansible.builtin.template:
+    src: nftables.j2 
+    dest: "{{ nftables.instances_dir }}/{{ instance.name }}.nft"
+  when: not nftables_rules.stat.exists

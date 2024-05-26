@@ -1,0 +1,6 @@
+- hosts: all
+  vars:
+    apply_host: "{{ groups['all'][0] }}" 
+  roles:
+  - instances
+    

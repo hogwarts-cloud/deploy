@@ -1,0 +1,8 @@
+- name: Apply instances
+  when: inventory_hostname == apply_host
+  ansible.builtin.include_tasks: apply_instances_from_local.yaml # todo in production set to apply_instances.yaml
+
+- name: Configure network
+  vars:
+    info: "{{ hostvars[apply_host]['apply_result'] }}"
+  ansible.builtin.include_tasks: configure_network.yaml

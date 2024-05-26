@@ -1,0 +1,108 @@
+- name: Check that bootstrap node already configured
+  ansible.builtin.shell:
+    cmd: incus admin cluster list-database
+  register: incus_cluster_list_database
+
+- name: Configure bootstrap node
+  when: 
+  - hostvars[inventory_hostname].cluster_host not in incus_cluster_list_database.stdout
+  - inventory_hostname in groups["bootstrap"]
+  block:
+  - name: Check that bootstrap node config exists
+    ansible.builtin.stat: 
+      path: "{{ incus.dir }}/bootstrap.yaml"
+    register: bootstrap_node_config
+
+  - name: Copy bootstrap node config
+    ansible.builtin.template:
+      src: bootstrap.yaml.j2
+      dest: "{{ incus.dir }}/bootstrap.yaml"
+    when: not bootstrap_node_config.stat.exists
+
+  - name: Init bootstrap node
+    ansible.builtin.shell:
+      cmd: incus admin init --preseed < {{ incus.dir }}/bootstrap.yaml 
+
+- name: Init members
+  ansible.builtin.include_tasks: init_member.yaml
+  vars:
+    member:
+      name: "{{ current_member }}"
+      address: "{{ hostvars[current_member].cluster_host }}"
+  with_items: "{{ groups['members'] }}"
+  loop_control:
+    loop_var: current_member
+  when: inventory_hostname in groups["bootstrap"]
+
+- name: Check that instance image already imported
+  ansible.builtin.shell:
+    cmd: incus image list
+  register: incus_image_list
+    
+- name: Import instance image
+  vars:
+    image_name: "{{ incus.cluster.image }}"
+  when: 
+  - "image_name not in incus_image_list.stdout"
+  - inventory_hostname in groups["bootstrap"]
+  block:
+  - name: Check that image archive exists
+    ansible.builtin.stat: 
+      path: "{{ incus.dir }}/incus.tar.xz"
+    register: image_archive
+  
+  - name: Copy image archive
+    ansible.builtin.copy:
+      src: "{{ role_path }}/files/incus.tar.xz"
+      dest: "{{ incus.dir }}/incus.tar.xz"
+    when: not image_archive.stat.exists
+      
+  - name: Check that rootfs exists
+    ansible.builtin.stat: 
+      path: "{{ incus.dir }}/rootfs.squashfs"
+    register: rootfs
+  
+  - name: Copy rootfs
+    ansible.builtin.copy:
+      src: "{{ role_path }}/files/rootfs.squashfs"
+      dest: "{{ incus.dir }}/rootfs.squashfs"
+    when: not rootfs.stat.exists
+
+  - name: Import instance image
+    ansible.builtin.shell:
+      cmd: incus image import {{ incus.dir }}/incus.tar.xz {{ incus.dir }}/rootfs.squashfs --alias {{ incus.cluster.image }}
+
+- name: Check that nftables already configured
+  ansible.builtin.shell:
+    cmd: nft list tables
+  register: nft_list_tables
+
+- name: Configure nftables
+  vars:
+    table_name: "{{ nftables.table }}"
+  when: "table_name not in nft_list_tables.stdout"
+  block:
+  - name: Create directory for Incus nftables config
+    ansible.builtin.file:
+      path: "{{ nftables.dir }}"
+      state: directory
+      
+  - name: Create directory for instances nftables configs
+    ansible.builtin.file:
+      path: "{{ nftables.instances_dir }}"
+      state: directory
+    
+  - name: Include Incus configs to main config file 
+    ansible.builtin.lineinfile:
+      path: "{{ nftables.config }}"
+      line: "\ninclude \"{{ nftables.dir }}/incus.nft\"\n\ninclude \"{{ nftables.instances_dir }}/*.nft\"\n"
+  
+  - name: Copy nftables config
+    ansible.builtin.template:
+      src: incus.nft.j2
+      dest: "{{ nftables.dir }}/incus.nft"
+      
+  - name: Apply nftables config
+    ansible.builtin.shell:
+      cmd: nft -f {{ nftables.config }}
+    

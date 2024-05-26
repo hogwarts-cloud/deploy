@@ -1,0 +1,20 @@
+- name: Check that instances config exists
+  ansible.builtin.stat:
+    path: "{{ hogctl.config.instances.path }}"
+  register: instances_config
+
+- name: Download instances config
+  ansible.builtin.copy:
+    src: /home/danilkaz/code/hogwarts-cloud/config/instances.yaml
+    dest: "{{ hogctl.config.instances.path }}"
+  when: not instances_config.stat.exists
+      
+- name: Apply instances
+  ansible.builtin.shell:
+    cmd: hogctl apply --cluster-config={{ hogctl.config.cluster.path }} --instances-config={{ hogctl.config.instances.path }}
+  register: apply_result
+
+- name: Delete instances config
+  ansible.builtin.file:
+    state: absent
+    path: "{{ hogctl.config.instances.path }}"

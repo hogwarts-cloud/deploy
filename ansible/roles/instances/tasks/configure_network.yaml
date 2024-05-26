@@ -1,0 +1,21 @@
+- name: Configure network
+  block:
+  - name: Handle deleted instances
+    ansible.builtin.include_tasks: delete_network_configs.yaml
+    with_items: "{{ (hostvars[apply_host].apply_result.stdout | ansible.builtin.from_yaml).deleted }}"
+    loop_control:
+      loop_var: instance
+        
+  - name: Handle launched instances
+    ansible.builtin.include_tasks: create_network_configs.yaml
+    with_items: "{{ (hostvars[apply_host].apply_result.stdout | ansible.builtin.from_yaml).launched }}"
+    loop_control:
+      loop_var: instance
+  
+  - name: Reload NGINX
+    ansible.builtin.shell:
+      cmd: nginx -s reload
+
+  - name: Reload nftables
+    ansible.builtin.shell:
+      cmd: nft -f {{ nftables.config }}

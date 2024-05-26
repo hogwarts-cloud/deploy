@@ -1,0 +1,10 @@
+- name: Delete NGINX config
+  ansible.builtin.file:
+    path: "{{ nginx.dir }}/{{ instance.name }}.conf"
+    state: absent
+
+- name: Delete nftables rules
+  ansible.builtin.file:
+    path: "{{ nftables.dir }}/{{ instance.name }}.nft"
+    state: absent
+  

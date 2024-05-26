@@ -1,0 +1,20 @@
+hogctl:
+  dir: /etc/hogctl
+  release: https://api.github.com/repos/hogwarts-cloud/hogctl/releases/latest
+  config:
+    cluster:
+      path: /etc/hogctl/cluster.yaml
+      url: https://raw.githubusercontent.com/hogwarts-cloud/config/config/cluster.yaml
+    instances:
+      path: /etc/hogctl/instances.yaml
+      url: https://raw.githubusercontent.com/hogwarts-cloud/config/config/instances.yaml
+
+nginx:
+  dir: /etc/nginx/sites-enabled
+  domain: vm.urgu.org
+      
+nftables:
+  config: /etc/nftables.conf
+  dir: /etc/nftables/incus
+  instances_dir: /etc/nftables/incus/instances
+  table: incus

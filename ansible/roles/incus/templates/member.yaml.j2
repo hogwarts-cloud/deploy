@@ -1,0 +1,14 @@
+cluster:
+  enabled: true
+  server_name: {{ member.name }}
+  server_address: {{ member.address }}:8443
+  cluster_token: {{ cluster_token }}
+  member_config:
+  - entity: storage-pool
+    name: incuslvm
+    key: source
+    value: {{ incus.cluster.lvm.vg }}
+  - entity: storage-pool
+    name: incuslvm
+    key: lvm.vg.force_reuse
+    value: true

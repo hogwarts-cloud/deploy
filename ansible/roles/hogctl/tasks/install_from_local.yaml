@@ -1,0 +1,34 @@
+- name: Build hogctl
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.shell:
+    cmd: "go build -o /tmp/hogctl main.go"
+    chdir: /home/danilkaz/code/hogwarts-cloud/hogctl/
+
+- name: Copy hogctl
+  ansible.builtin.copy:
+    src: /tmp/hogctl
+    dest: /usr/local/bin/hogctl
+    mode: '0777'
+    
+- name: Create directory for hogctl config
+  ansible.builtin.file:
+    path: "{{ hogctl.dir }}"
+    state: directory
+    
+- name: Check that cluster config exists
+  ansible.builtin.stat:
+    path: "{{ hogctl.config.cluster.path }}"
+  register: cluster_config
+
+- name: Copy cluster config
+  ansible.builtin.copy:
+    src: /home/danilkaz/code/hogwarts-cloud/config/cluster.yaml
+    dest: "{{ hogctl.config.cluster.path }}"
+  when: not cluster_config.stat.exists
+
+- name: Rm hogctl
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.shell:
+    cmd: "rm /tmp/hogctl"

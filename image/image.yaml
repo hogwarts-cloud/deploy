@@ -1,0 +1,66 @@
+image:
+  name: hogwarts-cloud-ubuntu-x86_64
+  distribution: ubuntu
+  release: jammy
+  variant: cloud
+  architecture: x86_64
+  description: Hogwarts Cloud image
+
+source:
+  downloader: debootstrap
+  url: http://archive.ubuntu.com/ubuntu
+
+files:
+- generator: cloud-init
+  name: meta-data
+
+- generator: cloud-init
+  name: network-config
+
+- generator: cloud-init
+  name: user-data
+
+- generator: cloud-init
+  name: vendor-data
+
+- generator: copy
+  source: ./files/proxy.conf
+  path: /etc/apt/apt.conf.d/proxy.conf
+
+packages:
+  manager: apt
+  update: true
+  cleanup: true
+  sets:
+  - packages:
+    - openssh-server
+    - cloud-init
+    action: install
+
+  repositories:
+  - name: sources.list
+    url: |-
+      deb http://archive.ubuntu.com/ubuntu {{ image.release }} main restricted universe multiverse
+      deb http://archive.ubuntu.com/ubuntu {{ image.release }}-updates main restricted universe multiverse
+      deb http://security.ubuntu.com/ubuntu {{ image.release }}-security main restricted universe multiverse
+
+actions:
+- trigger: post-packages
+  action: |-
+    #!/bin/sh
+    set -eux
+
+    # Make sure the locale is built and functional
+    locale-gen en_US.UTF-8
+    update-locale LANG=en_US.UTF-8
+
+    # Cleanup underlying /run
+    mount -o bind / /mnt
+    rm -rf /mnt/run/*
+    umount /mnt
+
+    # Cleanup temporary shadow paths
+    rm /etc/*-
+
+mappings:
+  architecture_map: debian
