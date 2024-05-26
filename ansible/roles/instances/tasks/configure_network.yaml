@@ -5,13 +5,6 @@
     with_items: "{{ (hostvars[apply_host].apply_result.stdout | ansible.builtin.from_yaml).deleted }}"
     loop_control:
       loop_var: instance
-  
-  - name: Create nftables chains and rules
-    ansible.builtin.shell:
-      cmd: |
-        nft 'add chain {{ instances.nftables.table }} prerouting { type nat hook prerouting priority dstnat ; }'
-        nft 'add chain {{ instances.nftables.table }} postrouting { type nat hook postrouting priority srcnat ; }'
-        nft 'add rule {{ instances.nftables.table }} postrouting masquerade'
         
   - name: Handle launched instances
     ansible.builtin.include_tasks: create_network_configs.yaml
@@ -22,3 +15,7 @@
   - name: Reload NGINX
     ansible.builtin.shell:
       cmd: nginx -s reload
+
+  - name: Reload nftables
+    ansible.builtin.shell:
+      cmd: nft -f {{ nftables.config }}

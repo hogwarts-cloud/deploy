@@ -1,0 +1,3 @@
+#!/usr/sbin/nft -f
+
+add rule {{ nftables.table }} prerouting tcp dport { {{ instance.network.port }} } dnat {{ instance.network.ip }}:22

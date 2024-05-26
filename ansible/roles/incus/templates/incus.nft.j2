@@ -1,0 +1,9 @@
+#!/usr/sbin/nft -f
+
+add table ip {{ nftables.table }}
+add chain ip {{ nftables.table }} forward { type filter hook forward priority filter; policy accept; }
+add chain ip {{ nftables.table }} forward { ip version 4 oifname "{{ incus.cluster.bridge }}" accept; }
+add chain ip {{ nftables.table }} forward { ip version 4 iifname "{{ incus.cluster.bridge }}" accept; }
+add chain ip {{ nftables.table }} prerouting { type nat hook prerouting priority dstnat ; }
+add chain ip {{ nftables.table }} postrouting { type nat hook postrouting priority srcnat ; }
+add rule {{ nftables.table }} postrouting masquerade

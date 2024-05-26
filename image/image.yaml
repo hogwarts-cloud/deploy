@@ -11,17 +11,21 @@ source:
   url: http://archive.ubuntu.com/ubuntu
 
 files:
-- name: meta-data
-  generator: cloud-init
+- generator: cloud-init
+  name: meta-data
 
-- name: network-config
-  generator: cloud-init
+- generator: cloud-init
+  name: network-config
 
-- name: user-data
-  generator: cloud-init
+- generator: cloud-init
+  name: user-data
 
-- name: vendor-data
-  generator: cloud-init
+- generator: cloud-init
+  name: vendor-data
+
+- generator: copy
+  source: ./files/proxy.conf
+  path: /etc/apt/apt.conf.d/proxy.conf
 
 packages:
   manager: apt

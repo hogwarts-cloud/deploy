@@ -7,7 +7,7 @@ cluster:
   - entity: storage-pool
     name: incuslvm
     key: source
-    value: {{ incus.cluster.vg_name }}
+    value: {{ incus.cluster.lvm.vg }}
   - entity: storage-pool
     name: incuslvm
     key: lvm.vg.force_reuse

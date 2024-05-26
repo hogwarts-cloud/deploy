@@ -4,7 +4,7 @@ storage_pools:
 - name: incuslvm
   driver: lvm
   config:
-    source: {{ incus.cluster.vg_name }}
+    source: {{ incus.cluster.lvm.vg }}
     lvm.vg.force_reuse: true
 cluster:
   enabled: true

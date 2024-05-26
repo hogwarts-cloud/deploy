@@ -1,4 +1,0 @@
-add table ip {{ incus.cluster.network.nftables_table }}
-add chain ip {{ incus.cluster.network.nftables_table }} forward { type filter hook forward priority filter; policy accept; }
-add chain ip {{ incus.cluster.network.nftables_table }} forward { ip version 4 oifname "{{ incus.cluster.bridge_name }}" accept; }
-add chain ip {{ incus.cluster.network.nftables_table }} forward { ip version 4 iifname "{{ incus.cluster.bridge_name }}" accept; }

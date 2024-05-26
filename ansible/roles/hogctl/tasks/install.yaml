@@ -1,0 +1,27 @@
+- name: Get hogctl release
+  ansible.builtin.uri:
+    url: "{{ hogctl.release }}"
+    return_content: true
+  register: hogctl_release
+
+- name: Download hogctl binary
+  ansible.builtin.get_url:
+    url: "{{ hogctl_release.json.assets[0].browser_download_url }}"
+    dest: /usr/local/bin/hogctl
+    mode: '0777'
+
+- name: Create directory for hogctl config
+  ansible.builtin.file:
+    path: "{{ hogctl.dir }}"
+    state: directory
+    
+- name: Check that cluster config exists
+  ansible.builtin.stat:
+    path: "{{ hogctl.config.cluster.path }}"
+  register: cluster_config
+
+- name: Download cluster config
+  ansible.builtin.get_url:
+    url: "{{ hogctl.config.cluster.url }}"
+    dest: "{{ hogctl.config.cluster.path }}"
+  when: not cluster_config.stat.exists

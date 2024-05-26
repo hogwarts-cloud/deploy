@@ -79,21 +79,30 @@
 
 - name: Configure nftables
   vars:
-    table_name: "{{ incus.cluster.network.nftables_table }}"
+    table_name: "{{ nftables.table }}"
   when: "table_name not in nft_list_tables.stdout"
   block:
-  - name: Check that nftables config exists
-    ansible.builtin.stat: 
-      path: "{{ incus.dir }}/nftables_config"
-    register: nftables_config
+  - name: Create directory for Incus nftables config
+    ansible.builtin.file:
+      path: "{{ nftables.dir }}"
+      state: directory
+      
+  - name: Create directory for instances nftables configs
+    ansible.builtin.file:
+      path: "{{ nftables.instances_dir }}"
+      state: directory
+    
+  - name: Include Incus configs to main config file 
+    ansible.builtin.lineinfile:
+      path: "{{ nftables.config }}"
+      line: "\ninclude \"{{ nftables.dir }}/incus.nft\"\n\ninclude \"{{ nftables.instances_dir }}/*.nft\"\n"
   
   - name: Copy nftables config
     ansible.builtin.template:
-      src: nftables_config.j2
-      dest: "{{ incus.dir }}/nftables_config"
-    when: not nftables_config.stat.exists
+      src: incus.nft.j2
+      dest: "{{ nftables.dir }}/incus.nft"
       
   - name: Apply nftables config
     ansible.builtin.shell:
-      cmd: nft -f {{ incus.dir }}/nftables_config
+      cmd: nft -f {{ nftables.config }}
     

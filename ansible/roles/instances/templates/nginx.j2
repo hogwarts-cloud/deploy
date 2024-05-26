@@ -1,5 +1,5 @@
 server {
-    server_name {{ instance.name }}.{{ instances.nginx.domain }};
+    server_name {{ instance.name }}.{{ nginx.domain }};
     listen      80;
 
     location / {
